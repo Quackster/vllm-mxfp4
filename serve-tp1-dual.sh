@@ -5,8 +5,8 @@
 # single-GPU profile (fp16 ssm cache, MAXSEQS 3, MAXLEN 220000, CHUNK 2560, libr4d rx9, the
 # fp8 residual stream), in its own container, with its own name and its own cache root:
 #
-#   vllm-mxfp4-gpu0   :8080   HIP 0   ~/.radiance-cache-gpu0-tp1s
-#   vllm-mxfp4-gpu1   :8081   HIP 1   ~/.radiance-cache-gpu1-tp1s
+#   vllm-gpu0   :8080   HIP 0   ~/.radiance-cache-gpu0-tp1s
+#   vllm-gpu1   :8081   HIP 1   ~/.radiance-cache-gpu1-tp1s
 #
 # STAGGERED ON PURPOSE. The host has 60 GiB of RAM and each server reads a 19.4 GiB checkpoint
 # plus the 2 GiB drafter through its own container; both loads at once OOM the host (the same
@@ -21,7 +21,7 @@
 # Both endpoints serve the same model names, so clients pick a card by port:
 #   curl http://localhost:8080/v1/models
 #   curl http://localhost:8081/v1/models
-# Logs:  docker logs -f vllm-mxfp4-gpu0   /   docker logs -f vllm-mxfp4-gpu1
+# Logs:  docker logs -f vllm-gpu0   /   docker logs -f vllm-gpu1
 
 set -euo pipefail
 
@@ -30,8 +30,8 @@ RUNTIME=${RUNTIME:-docker}
 PORT0=${PORT0:-8080}
 PORT1=${PORT1:-8081}
 HEALTH_TIMEOUT=${HEALTH_TIMEOUT:-1800}
-NAME0=vllm-mxfp4-gpu0
-NAME1=vllm-mxfp4-gpu1
+NAME0=vllm-gpu0
+NAME1=vllm-gpu1
 
 if [ "${1:-}" = stop ]; then
   for n in "$NAME0" "$NAME1"; do
@@ -42,7 +42,7 @@ if [ "${1:-}" = stop ]; then
   exit 0
 fi
 
-healthy() { curl -fsS -o /dev/null --max-time 2 "http://127.0.0.1:$1/health"; }
+healthy() { curl -fs -o /dev/null --max-time 2 "http://127.0.0.1:$1/health"; }
 
 wait_healthy() {
   local port=$1 name=$2 waited=0

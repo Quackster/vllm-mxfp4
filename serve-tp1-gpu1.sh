@@ -17,7 +17,7 @@
 # healthy -- serve-tp1-dual.sh does that for you. Once both are resident they coexist.
 #
 #   ./serve-tp1-gpu1.sh                    # foreground, http://localhost:8081/v1
-#   DETACH=1 ./serve-tp1-gpu1.sh           # background (logs: docker logs -f vllm-mxfp4-gpu1)
+#   DETACH=1 ./serve-tp1-gpu1.sh           # background (logs: docker logs -f vllm-gpu1)
 #   ./serve-tp1-gpu1.sh --enforce-eager    # extra args go to `vllm serve`
 #   DRY_RUN=1 ./serve-tp1-gpu1.sh          # print the container command, do not run it
 
@@ -25,7 +25,7 @@ exec env \
   TP=1 \
   GPUS=1 \
   RUNTIME="${RUNTIME:-docker}" \
-  NAME="${NAME:-vllm-mxfp4-gpu1}" \
+  NAME="${NAME:-vllm-gpu1}" \
   PORT="${PORT:-8081}" \
   MODELS="${MODELS:-$HOME/models}" \
   SNAP="${SNAP:-$HOME/models/Qwen3.8-27B-MXFP4-mtpfp8}" \

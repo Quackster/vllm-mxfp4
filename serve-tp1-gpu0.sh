@@ -27,7 +27,7 @@
 # declares mtp.* in layer_quant_config and loads. The DFlash2 drafter sits next to it.
 #
 #   ./serve-tp1-gpu0.sh                    # foreground, http://localhost:8080/v1
-#   DETACH=1 ./serve-tp1-gpu0.sh           # background (logs: docker logs -f vllm-mxfp4-gpu0)
+#   DETACH=1 ./serve-tp1-gpu0.sh           # background (logs: docker logs -f vllm-gpu0)
 #   ./serve-tp1-gpu0.sh --enforce-eager    # extra args go to `vllm serve`
 #   DRY_RUN=1 ./serve-tp1-gpu0.sh          # print the container command, do not run it
 #
@@ -37,7 +37,7 @@ exec env \
   TP=1 \
   GPUS=0 \
   RUNTIME="${RUNTIME:-docker}" \
-  NAME="${NAME:-vllm-mxfp4-gpu0}" \
+  NAME="${NAME:-vllm-gpu0}" \
   PORT="${PORT:-8080}" \
   MODELS="${MODELS:-$HOME/models}" \
   SNAP="${SNAP:-$HOME/models/Qwen3.8-27B-MXFP4-mtpfp8}" \

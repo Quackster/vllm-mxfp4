@@ -10,8 +10,8 @@ environment without editing anything.
 
 ```
 container           GPU (HIP)   endpoint                    cache root
-vllm-mxfp4-gpu0     0           http://localhost:8080/v1    ~/.radiance-cache-gpu0-tp1s
-vllm-mxfp4-gpu1     1           http://localhost:8081/v1    ~/.radiance-cache-gpu1-tp1s
+vllm-gpu0     0           http://localhost:8080/v1    ~/.radiance-cache-gpu0-tp1s
+vllm-gpu1     1           http://localhost:8081/v1    ~/.radiance-cache-gpu1-tp1s
 ```
 
 Both serve the same model names (`Qwen3.8`, `Qwen3.6`, `Qwen3.8-MXFP4`) — clients pick a card by
@@ -136,8 +136,8 @@ model's output.
 
 | file | what it does |
 |---|---|
-| `serve-tp1-gpu0.sh` | `TP=1 GPUS=0`, name `vllm-mxfp4-gpu0`, port `8080`, cache `~/.radiance-cache-gpu0` |
-| `serve-tp1-gpu1.sh` | `TP=1 GPUS=1`, name `vllm-mxfp4-gpu1`, port `8081`, cache `~/.radiance-cache-gpu1` |
+| `serve-tp1-gpu0.sh` | `TP=1 GPUS=0`, name `vllm-gpu0`, port `8080`, cache `~/.radiance-cache-gpu0` |
+| `serve-tp1-gpu1.sh` | `TP=1 GPUS=1`, name `vllm-gpu1`, port `8081`, cache `~/.radiance-cache-gpu1` |
 | `serve-tp1-dual.sh` | starts gpu0, waits for `/health`, starts gpu1; `stop` subcommand stops both |
 
 Each wrapper is a thin `exec env ... ./serve-mxfp4.sh`, which pins only what **must** differ:
@@ -203,14 +203,14 @@ that is already healthy is left alone rather than restarted.
 Expected output when both are up:
 
 ```
-[dual] starting vllm-mxfp4-gpu0 on :8080
-[dual] waiting for vllm-mxfp4-gpu0 on :8080 ...... ready (300s)
-[dual] starting vllm-mxfp4-gpu1 on :8081
-[dual] waiting for vllm-mxfp4-gpu1 on :8081 ...... ready (310s)
+[dual] starting vllm-gpu0 on :8080
+[dual] waiting for vllm-gpu0 on :8080 ...... ready (300s)
+[dual] starting vllm-gpu1 on :8081
+[dual] waiting for vllm-gpu1 on :8081 ...... ready (310s)
 
 [dual] both cards are serving:
-  gpu0  http://localhost:8080/v1   (vllm-mxfp4-gpu0)
-  gpu1  http://localhost:8081/v1   (vllm-mxfp4-gpu1)
+  gpu0  http://localhost:8080/v1   (vllm-gpu0)
+  gpu1  http://localhost:8081/v1   (vllm-gpu1)
 ```
 
 ## 7. Verify
@@ -227,7 +227,7 @@ curl http://localhost:8080/v1/chat/completions \
   -d '{"model":"Qwen3.8","messages":[{"role":"user","content":"Hello!"}]}'
 ```
 
-Worth grepping for in the logs (`docker logs vllm-mxfp4-gpu0 | less`):
+Worth grepping for in the logs (`docker logs vllm-gpu0 | less`):
 
 * `Using RadianceMxfp4W4A8LinearKernel for MXFP4 GEMM` — the fork's kernel won selection.
 * `[radiance] native MXFP4 enabled on gfx12x` — the aiter fp4 gate was relaxed.
@@ -239,11 +239,11 @@ Worth grepping for in the logs (`docker logs vllm-mxfp4-gpu0 | less`):
 ## 8. Logs, stop, restart
 
 ```bash
-docker logs -f vllm-mxfp4-gpu0
-docker logs -f vllm-mxfp4-gpu1
+docker logs -f vllm-gpu0
+docker logs -f vllm-gpu1
 
 ./serve-tp1-dual.sh stop                 # stop + remove both
-docker stop vllm-mxfp4-gpu0              # or one at a time
+docker stop vllm-gpu0              # or one at a time
 
 ./serve-tp1-gpu0.sh                      # foreground, one card only
 DETACH=1 ./serve-tp1-gpu0.sh             # background, returns once the container is RUNNING
